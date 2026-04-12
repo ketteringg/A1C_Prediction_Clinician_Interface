@@ -1,0 +1,25 @@
+# Next.js
+.next/
+out/
+node_modules/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Source data — never commit
+*.csv
+DM_Features*
+DM_Control*
+TEST_SET*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
