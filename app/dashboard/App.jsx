@@ -16,14 +16,14 @@ function parsePatients(raw) {
 const PATIENTS = parsePatients(RAW);
 
 const FLAG_DESCRIPTIONS = {
-  "A1C >9": "At least one A1c measurement in the lookback window exceeded 9.0%, indicating severely uncontrolled glycemia.",
-  "Mean A1C >8": "The patient's mean A1c across all lookback measurements is above 8.0% — chronically above the ADA target of 7.0%.",
+  "A1C >9.0": "At least one A1c measurement in the lookback window exceeded 9.0%, indicating severely uncontrolled glycemia.",
+  "Mean A1C >8.0": "The patient's mean A1c across all lookback measurements is above 8.0% — chronically above the ADA target of 7.0%.",
   "Trending Up": "A1c increased by at least 1.0 percentage point between the first and second recorded measurements.",
   "Persistent Moderate": "Mean A1c between 7.0% and 9.0% with no upward trend — chronically above goal but not acutely deteriorating. High-leverage intervention target.",
   "Single Visit": "Only one A1c measurement available in the lookback window — trend assessment not possible. Schedule follow-up for trajectory data.",
   "High ED Use": "Elevated emergency department utilization suggests poorly controlled disease or access barriers to primary care.",
   "No Meds, High A1C": "Elevated A1c without any diabetes medications on record. Candidate for medication initiation.",
-  "On Insulin, A1C >9": "On insulin therapy yet still severely uncontrolled — likely needs dose escalation, adherence review, or regimen change.",
+  "On Insulin, A1C >9.0": "On insulin therapy yet still severely uncontrolled — likely needs dose escalation, adherence review, or regimen change.",
   "Schedule Follow-Up": "No 2025 A1c collection date on record. Routine follow-up recommended to re-establish monitoring cadence.",
   "Urgent: Schedule Follow-Up": "No 2025 A1c collection date AND predicted probability of uncontrolled A1c is at or above the high-risk threshold. Prioritize outreach.",
 };
@@ -681,5 +681,3 @@ export default function App() {
     </div>
   );
 }
-
-
