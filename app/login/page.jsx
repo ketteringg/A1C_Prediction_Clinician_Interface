@@ -43,9 +43,19 @@ function LoginForm() {
       <h1 style={{ margin: "0 0 6px", fontSize: 20, color: "#0f172a" }}>
         Diabetes Dashboard
       </h1>
-      <p style={{ margin: "0 0 20px", fontSize: 13, color: "#64748b" }}>
-        Sign in to continue
-      </p>
+      <div style={{ margin: "0 0 18px", fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>
+        <p style={{ margin: "0 0 10px" }}>
+          This sign-in screen is part of a demonstration of how the dashboard might appear as a clinician-facing tool. <strong>None of the patient data shown is real EHR data, nor does it synthetically represent any actual patient records.</strong> All values are fabricated from clinical distributions purely for illustration.
+        </p>
+        <div style={{
+          background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 6,
+          padding: "8px 10px", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          fontSize: 11, color: "#334155",
+        }}>
+          <div><strong style={{ color: "#475569" }}>Username:</strong> Dr.Smith123</div>
+          <div><strong style={{ color: "#475569" }}>Password:</strong> I&lt;3Informatics</div>
+        </div>
+      </div>
       <label style={{ display: "block", fontSize: 12, color: "#475569", marginBottom: 6 }}>
         Username
       </label>
