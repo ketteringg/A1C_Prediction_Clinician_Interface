@@ -45,7 +45,7 @@ function LoginForm() {
       </h1>
       <div style={{ margin: "0 0 18px", fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>
         <p style={{ margin: "0 0 10px" }}>
-          This sign-in screen is part of a demonstration of how the dashboard might appear as a clinician-facing tool. <strong>None of the patient data shown is real EHR data, nor does it synthetically represent any actual patient records.</strong> All values are fabricated from clinical distributions purely for illustration.
+          This sign-in screen is part of a demonstration of how the dashboard might appear as a clinician-facing tool. <strong>None of the patient data shown is real EHR data, nor does it synthetically represent any actual patient records.</strong> All values are fabricated for illustration only.
         </p>
         <div style={{
           background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 6,
