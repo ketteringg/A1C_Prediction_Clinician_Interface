@@ -28,6 +28,35 @@ const FLAG_DESCRIPTIONS = {
   "Urgent: Schedule Follow-Up": "No 2025 A1c collection date AND predicted probability of uncontrolled A1c is at or above the high-risk threshold. Prioritize outreach.",
 };
 const flagTip = (f) => FLAG_DESCRIPTIONS[f] || "";
+
+const FEATURE_DISPLAY_NAMES = {
+  "a1c_mean": "Mean A1c",
+  "a1c_max": "Maximum A1c",
+  "a1c_min": "Minimum A1c",
+  "a1c_std": "A1c variability (std dev)",
+  "a1c_most_recent": "Most recent A1c",
+  "a1c 1-estimated result": "First A1c in lookback",
+  "a1c_pct_above_70": "% of A1c readings above 7.0",
+  "a1c_pct_above_80": "% of A1c readings above 8.0",
+  "a1c_slope_per_month": "A1c change per month",
+  "a1c_last_first_ratio": "Ratio of latest to first A1c",
+  "days_v1_to_v2": "Days between first two A1c visits",
+  "gap_to_2025": "Days since last lookback A1c",
+  "visits_per_month": "A1c visits per month",
+  "persistent_moderate": "Persistent moderate (7-9%, not trending up)",
+  "young_elevated_a1c": "Age-adjusted elevation above 7.0",
+  "orders_per_visit": "Medication orders per A1c visit",
+  "insulin orders-count": "Insulin orders",
+  "metformin orders-count": "Metformin orders",
+  "sulfonylurea orders-count": "Sulfonylurea orders",
+  "bmi": "BMI",
+  "ldl-estimated result": "LDL cholesterol",
+  "total cholesterol-estimated result": "Total cholesterol",
+  "adi_national_rank": "Area Deprivation Index (national)",
+  "race - primary_enc": "Race",
+  "age": "Age",
+};
+const featureName = (f) => FEATURE_DISPLAY_NAMES[f] || f;
 const POP = RAW.p;
 const MODEL = RAW.m;
 
@@ -159,8 +188,8 @@ function WaterfallChart({ drivers }) {
         const labelInside = pct > 50;
         return (
           <div key={i} style={{ display: "flex", alignItems: "center", marginBottom: 6, gap: 8 }}>
-            <div style={{ width: 120, fontSize: 11, color: "#4b5563", textAlign: "right", flexShrink: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontWeight: 500 }}>
-              {d.name}
+            <div title={featureName(d.name)} style={{ width: 170, fontSize: 11, color: "#4b5563", textAlign: "right", flexShrink: 0, lineHeight: 1.25, fontWeight: 500, wordBreak: "break-word" }}>
+              {featureName(d.name)}
             </div>
             <div style={{ flex: 1, display: "flex", alignItems: "center", position: "relative", height: 20, overflow: "hidden" }}>
               <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "#d1d5db" }} />
@@ -636,8 +665,8 @@ export default function App() {
                         {p.flags.length > 2 && <span style={{ fontSize: 9, color: "#94a3b8", fontWeight: 600 }}>+{p.flags.length-2}</span>}
                       </div>
                     </td>
-                    <td style={{ padding: "10px 14px", fontSize: 11, color: "#475569", maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>
-                      {p.drivers[0]?.name || ""}
+                    <td title={p.drivers[0] ? featureName(p.drivers[0].name) : ""} style={{ padding: "10px 14px", fontSize: 11, color: "#475569", maxWidth: 160, lineHeight: 1.3, fontWeight: 500 }}>
+                      {p.drivers[0] ? featureName(p.drivers[0].name) : ""}
                     </td>
                     <td style={{ padding: "10px 14px", textAlign: "center" }}>
                       {p.actual ? (
