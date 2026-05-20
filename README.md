@@ -1,6 +1,6 @@
 # Diabetes Glycemic Control Dashboard
 
-Interactive Next.js dashboard for visualizing patient-level diabetes risk predictions from a CatBoost v8.1 model. Server-side authentication via Vercel environment variables.
+Interactive Next.js dashboard for visualizing patient-level diabetes risk predictions from a CatBoost v8.1 model (DM_Glycemic_Control_Full_Pipeline.ipynb). Server-side authentication via Vercel environment variables.
 
 ## Data policy
 
