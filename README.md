@@ -12,9 +12,9 @@ HbA1c is a blood test that measures blood sugar control over time, and it's the 
 
 ## Why this isn't just a modeling exercise
 
-The clinical data behind this project was messy in the usual ways, but one issue mattered more than the rest: 43% of the cohort had no recorded HbA1c test in 2025 at all, and the dataset's labeling convention marked every one of those patients as "controlled" by default. That's not a neutral assumption. A patient with no test result isn't necessarily fine, they may simply not have come in.
+The clinical data behind this project was messy in the usual ways, but one issue mattered more than the rest: 43% of the cohort had no recorded HbA1c test in 2025 at all, and the dataset's labeling convention marked every one of those patients as "controlled" by default. That's not a neutral assumption. A patient with no test result isn't necessarily fine, they may have unmeasured poor control.
 
-Training on that convention produces a model that looks excellent and isn't. Our most accurate version scored an AUC of about 0.95, but that number was inflated by nearly half the cohort being labeled "controlled" for having skipped a test rather than for any clinical reason. We treated that as a flaw in the label, not a result to report, and made a few deliberate choices instead of optimizing around it:
+Training on that convention produces a model that looks excellent but isn't. Our most accurate version scored an AUC of about 0.95, but that number was inflated by nearly half the cohort being labeled "controlled" for having skipped a test rather than for any clinical reason. We treated that as a flaw in the label, not a result to report, and made a few deliberate choices instead of optimizing around it:
 
 - **We trained only on the 57% of the cohort with real 2025 test data**, then applied the resulting model to the full cohort. The model that shipped scored an AUC of about 0.88, lower than the 0.95 version, and we chose it anyway because it was trained on ground truth rather than a labeling artifact.
 - **We used a single CatBoost model instead of an ensemble.** The ensemble added negligible predictive power over CatBoost alone, at meaningfully higher compute cost and with murkier explainability, both real costs for a model meant to plug into hospital EHR infrastructure someday, not just perform well in a notebook.
