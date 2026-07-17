@@ -6,7 +6,10 @@ Interactive Next.js dashboard for visualizing patient-level diabetes risk predic
 
 **No real patient data is committed to this repo.** `app/dashboard/data.js` contains 1,000 fully fabricated patients with clinically plausible distributions, scored through the actual trained CatBoost model. No real patient rows or IDs appear in the output.
 
-## Local development
+Open 
+https://a1-c-prediction-interface-clinician-zeta.vercel.app/login?next=%2F0. You'll be redirected to `/login`.
+
+or:
 
 ```bash
 npm install
