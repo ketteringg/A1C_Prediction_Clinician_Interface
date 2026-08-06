@@ -1,75 +1,90 @@
-# Diabetes Glycemic Control Prediction Pipeline and Clinician Dashboard
+# Diabetes Glycemic Control Prediction Pipeline
 
-An end-to-end machine-learning project that predicts which patients with diabetes are at risk of uncontrolled HbA1c in the following year and translates those predictions into a clinician-facing dashboard.
+An end-to-end machine-learning project predicting which patients with diabetes are at risk of uncontrolled HbA1c in the following year using longitudinal electronic health record data.
 
-Built for the 2026 Washington University Institute for Informatics, Data Science and Biostatistics Datathon.
+The central challenge was not simply building the most accurate model. It was determining whether the apparent accuracy represented clinically useful prediction or an artifact of the supplied outcome definition.
 
-## Project components
+Built for the Washington University Institute for Informatics, Data Science and Biostatistics Datathon.
 
-This repository contains both the analytical pipeline and the clinical application:
+## Project links
+
+* **Python machine-learning pipeline:** [`diabetes_a1c_prediction_pipeline.ipynb`](./diabetes_a1c_prediction_pipeline.ipynb)
+* **Live clinician dashboard:** [Open the deployed application](https://a1-c-prediction-interface-clinician-zeta.vercel.app/login?next=%2F)
+
+The live application can be reviewed directly in a browser. No local setup is required.
+
+> **All patient data displayed in the public dashboard is artificially generated.** The application contains fabricated patients with clinically plausible distributions for model-sharing and demonstration purposes. No real patient rows, identifiers, protected health information, or actual population trends are displayed.
+
+## The modeling problem
+
+The goal was to predict which patients would experience dangerously elevated HbA1c levels in 2025 using their 2024 electronic health record data.
+
+HbA1c is a blood test used to assess average blood glucose control over time, particularly in patients with diabetes. The intended use case was prospective clinical intervention: identifying patients who may need closer monitoring, follow-up testing, or additional support before their condition deteriorates.
+
+The supplied clinical dataset required substantial cleaning, but the most important issue involved the outcome labels.
+
+Approximately 43% of the cohort had no recorded HbA1c measurement in 2025. Under the supplied labeling convention, every one of those patients was deterministically classified as having controlled HbA1c.
+
+That assumption produced a model with an AUC of approximately 0.95.
+
+Normally, an AUC of 0.95 would appear exceptional. In this case, however, much of that performance reflected the model learning a flawed labeling convention rather than learning clinically meaningful risk.
+
+A missing future test does not demonstrate that a patient's HbA1c remained controlled. It may instead indicate incomplete follow-up, fragmented care, loss to follow-up, or an unobserved outcome.
+
+## Why we intentionally submitted a less accurate model
+
+We intentionally submitted a model with an AUC of approximately 0.88 instead of the model with an AUC of approximately 0.95.
+
+This was a principled decision made with clinical implementation as the priority.
+
+Accuracy is not useful when the target used to measure that accuracy is flawed. A model that reproduces an invalid labeling rule may appear highly predictive while being less useful in practice.
+
+To address this issue, we:
+
+1. Trained the model only on the 57% of patients who had an observed HbA1c measurement during the outcome year.
+2. Applied the trained model to the full cohort.
+3. Preserved missing follow-up testing as clinically relevant information rather than treating it as proof of control.
+4. Flagged patients who had elevated predicted risk and no recorded follow-up measurement.
+5. Used the dashboard to show both predicted risk and the factors contributing most to each patient's score.
+
+The lower AUC was more credible because it measured prediction against observed clinical outcomes rather than a deterministic missing-data artifact.
+
+## What this repository contains
+
+This repository includes both the full Python machine-learning workflow and a clinician-facing application.
 
 ### 1. Python machine-learning pipeline
 
 [`diabetes_a1c_prediction_pipeline.ipynb`](./diabetes_a1c_prediction_pipeline.ipynb) contains the complete analytical workflow, including:
 
 * Data loading and descriptive analysis
-* Missingness and label-quality investigation
 * Clinical data cleaning
-* Feature engineering from 97 candidate features to 25 retained features
+* Missingness investigation
+* Outcome-label auditing
+* Feature engineering
 * Comparison of six statistical and machine-learning models
 * Stratified five-fold cross-validation
-* Permutation-importance analysis and feature reduction
+* Permutation-importance analysis
+* Feature reduction
 * CatBoost model training
-* Out-of-fold threshold selection
-* Calibration and performance evaluation
-* Honest versus artifact-inflated AUC comparison
+* Out-of-fold probability generation
+* Threshold selection
+* ROC and precision-recall evaluation
+* Calibration analysis
 * Patient-level risk scoring
+* Honest versus artifact-inflated performance comparison
 
-### 2. Clinician-facing dashboard
+### 2. Clinician-facing application
 
-The `app/` directory contains a Next.js application that presents model predictions in a workflow designed for clinical review.
+The `app/` directory contains a Next.js dashboard that translates the model outputs into a workflow designed for clinical review.
 
-**Live demonstration:** [Diabetes A1C Prediction Dashboard](https://a1-c-prediction-interface-clinician-zeta.vercel.app/login?next=%2F)
+**[Open the live clinician dashboard](https://a1-c-prediction-interface-clinician-zeta.vercel.app/login?next=%2F)**
 
-> **All patient data shown in the public dashboard is artificially generated.** The application contains 1,000 fabricated patients with clinically plausible distributions that were scored using the trained CatBoost model. No real patient rows, identifiers, or protected health information are committed to this repository or displayed in the application.
+The public dashboard uses entirely synthetic patient data and can be reviewed without cloning or running the repository locally.
 
-## Clinical problem
+## Model comparison
 
-HbA1c reflects average blood glucose over time and is one of the primary measures used to evaluate diabetes control.
-
-The goal of this project was to use 12 months of prior electronic health record data to predict whether a patient would have uncontrolled HbA1c, defined as greater than 8%, during the following year.
-
-The intended use case is prospective care management. Rather than waiting for a future laboratory result, a clinical team could identify patients whose prior laboratory history, medications, utilization, demographics, and other characteristics suggest elevated risk of deterioration.
-
-## The central data-quality finding
-
-The most important result was not the highest-performing model.
-
-Approximately 43% of the cohort had no recorded HbA1c measurement during the outcome year. The supplied labeling convention classified every one of those patients as controlled by default.
-
-That assumption was not clinically neutral. A missing future measurement does not establish that a patient's diabetes remained controlled. It may instead reflect incomplete follow-up, fragmented care, or an unobserved outcome.
-
-Training directly on that convention produced an apparently stronger model with an AUC of approximately 0.95. Much of that performance came from learning the dataset's labeling rule rather than learning genuine clinical risk.
-
-We therefore made several deliberate modeling decisions:
-
-1. **Train on observed outcomes.**
-   Model development was restricted to patients with an actual outcome-year HbA1c measurement.
-
-2. **Score the broader cohort honestly.**
-   The trained model was applied to the full cohort without automatically assigning patients with missing follow-up measurements a zero-risk probability.
-
-3. **Prefer the defensible model.**
-   The selected model had lower apparent performance than the artifact-driven alternative, but its validation reflected observed clinical outcomes rather than a hardcoded missingness rule.
-
-4. **Preserve missing follow-up as an actionable signal.**
-   Patients with elevated predicted risk and no recorded follow-up measurement are flagged for scheduling rather than silently labeled controlled.
-
-This choice reflects the central principle of the project: a lower but credible performance estimate is more valuable than a higher metric produced by an invalid target definition.
-
-## Machine-learning pipeline
-
-The Python notebook evaluates six approaches:
+The Python pipeline evaluates six approaches:
 
 * Linear regression
 * Logistic regression
@@ -78,48 +93,54 @@ The Python notebook evaluates six approaches:
 * XGBoost
 * CatBoost
 
-Models were compared using stratified five-fold cross-validation. CatBoost was selected based on predictive performance, ability to handle mixed clinical features, and suitability for patient-level interpretation.
+CatBoost performed best in the model comparisons and was selected as the final model.
 
-The pipeline also includes:
+## Why we did not use an ensemble
 
-* Clinical binning and descriptive statistics
-* Missingness profiling
-* A1c trajectory engineering
-* Medication, utilization, demographic, and area-level features
-* Feature reduction using permutation importance
-* Out-of-fold probability generation
-* ROC and precision-recall evaluation
-* Calibration assessment
-* Clinically informed threshold analysis
-* Reusable training and prediction functions
+An ensemble model produced only a small improvement in predictive performance compared with CatBoost alone.
+
+We chose not to use the ensemble because the marginal gain did not justify the additional disadvantages:
+
+* Higher computational cost
+* Greater deployment complexity
+* More difficult maintenance
+* Less transparent patient-level explainability
+* More complicated integration into a hospital EHR environment
+
+For a model intended to support clinical workflows, predictive performance is only one consideration. Compute requirements, reproducibility, interpretability, maintenance, and implementation burden also matter.
+
+The final model therefore uses CatBoost rather than a more complex ensemble.
 
 ## Validation summary
 
 * **Development cohort:** 62,425 patients
 * **Model:** CatBoost
 * **Cross-validation:** Stratified five-fold
+* **Candidate features:** 97
 * **Retained features:** 25
 * **Mean cross-validated ROC-AUC:** 0.8759
 * **Sensitivity:** 83.3%
 * **Negative predictive value:** 95.3%
 * **Decision threshold:** 0.1725
 
-The decision threshold was selected from out-of-fold predictions with additional emphasis on sensitivity because false negatives carry a greater clinical cost in a prospective care-management setting.
+The decision threshold was selected using out-of-fold predictions with additional emphasis on sensitivity.
 
-## Why CatBoost instead of an ensemble?
+In this use case, the potential harm associated with a false negative is greater than the operational burden associated with a false positive. A patient who is incorrectly classified as low risk may miss an opportunity for monitoring or intervention, while a false-positive result generally leads to additional clinical review or follow-up.
 
-An ensemble produced only a small performance improvement over CatBoost alone while adding computational cost and reducing interpretability.
+## Risk stratification
 
-Because the intended use case involves integration into clinical workflows, the team prioritized:
+Rather than presenting the result as a binary controlled-versus-uncontrolled prediction, patients were grouped into four risk categories:
 
-* Reproducibility
-* Efficient scoring
-* Transparent feature contributions
-* Easier maintenance
-* Clinically useful sensitivity
-* Honest validation
+* Low
+* Moderate
+* High
+* Extremely high
 
-The final result was therefore based on a single CatBoost model rather than a more complex ensemble.
+This approach better reflects the clinical context.
+
+A single HbA1c result is only a snapshot within a longer disease trajectory. A patient whose diabetes appears controlled at one visit may deteriorate before the next measurement.
+
+The risk bins were intentionally aggressive because the consequences of failing to identify a deteriorating patient may outweigh the burden of reviewing a patient whose risk does not ultimately materialize.
 
 ## Dashboard functionality
 
@@ -131,10 +152,21 @@ The clinician-facing application includes:
 * Patient-level contributing factors
 * Follow-up status indicators
 * Pagination across the patient panel
-* Automatic scheduling flags for elevated-risk patients without recorded follow-up testing
+* Flags for elevated-risk patients without recorded follow-up testing
 * A lightweight server-side access gate for the public demonstration
 
-The access gate is intended only to limit casual access to the demonstration. It is not presented as production-grade healthcare authentication. A production deployment would require an established identity provider, signed sessions, role-based authorization, audit logging, and integration with the host organization's security infrastructure.
+The access gate is intended only to limit casual access to the demonstration. It is not production-grade healthcare authentication.
+
+A production implementation would require:
+
+* Institutional identity management
+* Signed sessions
+* Role-based authorization
+* Audit logging
+* Security review
+* EHR integration
+* Prospective validation
+* Ongoing model monitoring
 
 ## Technology
 
@@ -164,47 +196,59 @@ The access gate is intended only to limit casual access to the demonstration. It
 ├── diabetes_a1c_prediction_pipeline.ipynb  # complete Python ML workflow
 ├── README.md
 ├── package.json
-├── middleware.js                           # lightweight demonstration access gate
+├── middleware.js                           # demonstration access gate
 ├── .env.example
 ├── .gitignore
 └── app/
     ├── layout.jsx
-    ├── page.jsx                            # redirects to /dashboard
+    ├── page.jsx
     ├── login/
-    │   └── page.jsx                        # demonstration login interface
+    │   └── page.jsx
     ├── api/
     │   ├── login/
-    │   │   └── route.js                    # validates demo credentials
+    │   │   └── route.js
     │   └── logout/
-    │       └── route.js                    # clears the session cookie
+    │       └── route.js
     └── dashboard/
-        ├── page.jsx                        # dashboard wrapper
-        ├── App.jsx                         # primary React dashboard
-        └── data.js                         # 1,000 fully synthetic patients
+        ├── page.jsx
+        ├── App.jsx
+        └── data.js                         # fully synthetic patients
 ```
 
 ## Reviewing the machine-learning work
 
-The fastest way to review the analytical work is to open:
+The primary technical artifact in this repository is:
 
 [`diabetes_a1c_prediction_pipeline.ipynb`](./diabetes_a1c_prediction_pipeline.ipynb)
 
 The notebook is organized into sequential phases covering:
 
 1. Setup and data loading
-2. Descriptive statistics
+2. Descriptive analysis
 3. Data-quality investigation
-4. Cleaning and feature engineering
-5. Six-model comparison
-6. Feature reduction
-7. CatBoost validation
-8. Threshold and calibration analysis
-9. Final model training
-10. Honest versus artifact-inflated performance comparison
+4. Label and missingness analysis
+5. Cleaning and feature engineering
+6. Six-model comparison
+7. Feature reduction
+8. CatBoost validation
+9. Threshold and calibration analysis
+10. Final model training
+11. Honest versus artifact-inflated performance comparison
+12. Patient-level prediction generation
 
-The original datathon CSV files are not included in this public repository. The notebook is provided to document the complete Python workflow, modeling decisions, and validation methodology without publishing patient-level source records.
+The original datathon CSV files are not included in the public repository. The notebook documents the modeling workflow and validation methodology without publishing patient-level source data.
 
-## Running the dashboard locally
+## Reviewing the live application
+
+The deployed dashboard can be opened directly in a browser:
+
+### [Open the live clinician dashboard](https://a1-c-prediction-interface-clinician-zeta.vercel.app/login?next=%2F)
+
+No local installation is required.
+
+## Optional local setup
+
+Developers who want to inspect or modify the Next.js interface can run it locally:
 
 ```bash
 git clone https://github.com/ketteringg/A1C_Prediction_Clinician_Interface.git
@@ -223,19 +267,6 @@ Then open:
 http://localhost:3000
 ```
 
-The application will redirect to the login page.
-
-## Deployment
-
-To deploy a separate demonstration:
-
-1. Fork or clone the repository.
-2. Import the repository into Vercel.
-3. Add `AUTH_USER` and `AUTH_PASS` under the Vercel environment-variable settings.
-4. Deploy the Next.js application.
-
-The demonstration credentials are validated server-side and are not included in the browser bundle.
-
 ## Limitations
 
 This project is a research and portfolio demonstration, not a validated medical device.
@@ -247,11 +278,12 @@ Important limitations include:
 * Performance has not been externally validated at another institution.
 * Missing outcome-year measurements create uncertainty that cannot be resolved through modeling alone.
 * Predicted risk should support clinical review, not replace professional judgment.
-* A production implementation would require prospective validation, bias assessment, monitoring, governance, security review, and EHR integration.
+* The selected risk threshold reflects the priorities of this use case and would require additional evaluation before clinical deployment.
+* A production implementation would require prospective validation, fairness assessment, monitoring, governance, security review, and EHR integration.
 
 ## Project context
 
-This project was completed by the **Me, Myself, and AI** team for the WashU I2DB Datathon.
+This project was completed by the **Me, Myself, and AI** team for the Washington University Institute for Informatics, Data Science and Biostatistics Datathon.
 
 **Team members:**
 
@@ -260,4 +292,6 @@ This project was completed by the **Me, Myself, and AI** team for the WashU I2DB
 * Rishab Haldar
 * Anthony Kirchner
 
-I led the project and focused on the modeling strategy, data-quality investigation, validation decisions, and translation of patient-level predictions into a clinician-facing application.
+I led the team and focused on the modeling strategy, data-quality investigation, validation decisions, and translation of patient-level predictions into a clinician-facing application.
+
+The most important outcome of the project was not achieving the highest possible AUC. It was identifying when a high AUC was misleading and choosing the model that more honestly represented the clinical problem.
