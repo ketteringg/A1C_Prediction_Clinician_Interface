@@ -2,9 +2,11 @@
 
 An end-to-end machine-learning project predicting which patients with diabetes are at risk of uncontrolled HbA1c in the following year using longitudinal electronic health record data.
 
-The central challenge was not simply building the most accurate model. It was building what would be most useful and implementable in a clinical setting. Accuracy plays a very large part in the value of a clinical model but is not the sole metric for clinical effectiveness. 
+The central challenge was not simply building the most accurate model. It was deciding what would be clinically useful, defensible, and implementable, then building the system around that answer.
 
 Built for the Washington University Institute for Informatics, Data Science and Biostatistics Datathon.
+
+**My role:** I led the team, set the project direction and priorities, coordinated the work and final deliverables, and performed the end-to-end technical development. My responsibilities included data preparation, outcome-label investigation, feature engineering, model comparison, validation strategy, threshold selection, patient-level scoring, dashboard design, and development of the clinician-facing application.
 
 ## Project links
 
@@ -27,7 +29,7 @@ Approximately 43% of the cohort had no recorded HbA1c measurement in 2025. Under
 
 That assumption produced a model with an AUC of approximately 0.95.
 
-Normally, an AUC of 0.95 would appear exceptional. In this case, however, much of that performance reflected the model learning a flawed labeling convention rather than learning clinically meaningful risk.
+Normally, an AUC of 0.95 would appear exceptional. In this case, however, much of that performance reflected the model learning a flawed labeling convention rather than clinically meaningful risk.
 
 A missing future test does not demonstrate that a patient's HbA1c remained controlled. It may instead indicate incomplete follow-up, fragmented care, loss to follow-up, or an unobserved outcome.
 
@@ -37,7 +39,7 @@ We intentionally submitted a model with an AUC of approximately 0.88 instead of 
 
 This was a principled decision made with clinical implementation as the priority.
 
-Accuracy is not useful when the target used to measure that accuracy is flawed. A model that reproduces an invalid labeling rule may appear highly predictive while being less useful in practice.
+A performance metric is only useful when the target used to calculate it meaningfully represents the problem being solved. A model that reproduces an invalid labeling rule may appear highly predictive while being less useful in practice.
 
 To address this issue, we:
 
@@ -55,7 +57,7 @@ This repository includes both the full Python machine-learning workflow and a cl
 
 ### 1. Python machine-learning pipeline
 
-[`diabetes_a1c_prediction_pipeline.ipynb`](./diabetes_a1c_prediction_pipeline.ipynb) contains the complete analytical workflow, including:
+The notebook contains the complete analytical workflow, including:
 
 * Data loading and descriptive analysis
 * Clinical data cleaning
@@ -77,8 +79,6 @@ This repository includes both the full Python machine-learning workflow and a cl
 ### 2. Clinician-facing application
 
 The `app/` directory contains a Next.js dashboard that translates the model outputs into a workflow designed for clinical review.
-
-**[Open the live clinician dashboard](https://a1-c-prediction-interface-clinician-zeta.vercel.app/login?next=%2F)**
 
 The public dashboard uses entirely synthetic patient data and can be reviewed without cloning or running the repository locally.
 
@@ -283,7 +283,7 @@ Important limitations include:
 
 ## Project context
 
-This project was completed by the **Me, Myself, and AI** team for the Washington University Institute for Informatics, Data Science and Biostatistics Datathon.
+This project was submitted by the **Me, Myself, and AI** team for the Washington University Institute for Informatics, Data Science and Biostatistics Datathon.
 
 **Team members:**
 
@@ -292,6 +292,6 @@ This project was completed by the **Me, Myself, and AI** team for the Washington
 * Rishab Haldar
 * Anthony Kirchner
 
-I led the team and focused on the modeling strategy, data-quality investigation, validation decisions, and translation of patient-level predictions into a clinician-facing application.
+I served as the team lead and principal developer, directing the project's strategy, technical execution, and final delivery.
 
-The most important outcome of the project was not achieving the highest possible AUC. It was identifying when a high AUC was misleading and choosing the model that more honestly represented the clinical problem.
+The most important outcome was not achieving the highest possible AUC. It was recognizing when a high AUC was misleading and building the solution around a more clinically defensible understanding of the problem.
