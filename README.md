@@ -2,7 +2,7 @@
 
 An end-to-end machine-learning project predicting which patients with diabetes are at risk of uncontrolled HbA1c in the following year using longitudinal electronic health record data.
 
-The central challenge was not simply building the most accurate model. It was determining whether the apparent accuracy represented clinically useful prediction or an artifact of the supplied outcome definition.
+The central challenge was not simply building the most accurate model. It was building what would be most useful and implementable in a clinical setting. Accuracy plays a very large part in the value of a clinical model but is not the sole metric for clinical effectiveness. 
 
 Built for the Washington University Institute for Informatics, Data Science and Biostatistics Datathon.
 
